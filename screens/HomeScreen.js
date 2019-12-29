@@ -17,6 +17,8 @@ console.log("relay environment initialised succesfully")
 
 import { MonoText } from '../components/StyledText';
 
+import ListPage from '../components/ListPage';
+
 // move into a fragment later
 const allPostsQuery = graphql`
 	query HomeScreenQuery  {
@@ -32,6 +34,8 @@ const allPostsQuery = graphql`
 	}
   }
 }`
+//
+//return <Text> props: {props.viewer.allPosts.edges[0].node.description}</Text>;
 
 export default function HomeScreen(props) {
   return (
@@ -39,30 +43,8 @@ export default function HomeScreen(props) {
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}>
-        <View style={styles.welcomeContainer}>
-          <Image
-            source={
-              __DEV__
-                ? require('../assets/images/robot-dev.png')
-                : require('../assets/images/robot-prod.png')
-            }
-            style={styles.welcomeImage}
-          />
-        </View>
 
-        <View style={styles.getStartedContainer}>
-          <DevelopmentModeNotice />
-
-          <Text style={styles.getStartedText}>Get started by opening</Text>
-
-          <View
-            style={[styles.codeHighlightContainer, styles.homeScreenFilename]}>
-            <MonoText>screens/HomeScreen.js</MonoText>
-          </View>
-
-          <Text style={styles.getStartedText}>
-            Going to add props here
-          </Text>
+        <View style={styles.container}>
 		<QueryRenderer
 			environment={environment}
 			query={allPostsQuery}
@@ -78,18 +60,11 @@ export default function HomeScreen(props) {
 				return <Text>Loading...</Text>;
 			  }
 			  console.log("rendering")
-			  return <Text> props: {props.viewer.allPosts.edges[0].node.description}</Text>;
+			  return <ListPage posts={props.viewer.allPosts.edges}/>
 			}}
 		  />
         </View>
 
-        <View style={styles.helpContainer}>
-          <TouchableOpacity onPress={handleHelpPress} style={styles.helpLink}>
-            <Text style={styles.helpLinkText}>
-              Help, it didn’t automatically reload!
-            </Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
 
       <View style={styles.tabBarInfoContainer}>
