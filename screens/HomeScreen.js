@@ -19,23 +19,13 @@ import { MonoText } from '../components/StyledText';
 
 import ListPage from '../components/ListPage';
 
-// move into a fragment later
-const allPostsQuery = graphql`
+const root_query = graphql`
 	query HomeScreenQuery  {
 		viewer{
-			allPosts(last: 100, orderBy: description_DESC) {
-		edges {
-			node {
-			 id
-			 description
-			 imageUrl
-			}
+			id
+			...ListPage_posts
 	  }
-	}
-  }
 }`
-//
-//return <Text> props: {props.viewer.allPosts.edges[0].node.description}</Text>;
 
 export default function HomeScreen(props) {
   return (
@@ -43,11 +33,11 @@ export default function HomeScreen(props) {
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}>
-
-        <View style={styles.container}>
 		<QueryRenderer
 			environment={environment}
-			query={allPostsQuery}
+			query={
+				root_query
+			}
 			variables={{}}
 			render={({error, props}) => {
 			  console.log(props)
@@ -60,25 +50,14 @@ export default function HomeScreen(props) {
 				return <Text>Loading...</Text>;
 			  }
 			  console.log("rendering")
-			  return <ListPage posts={props.viewer.allPosts.edges}/>
+			  console.log(props)
+			  return <ListPage 
+			  posts={props.viewer}
+			  environment={environment}
+			  />
 			}}
 		  />
-        </View>
-
       </ScrollView>
-
-      <View style={styles.tabBarInfoContainer}>
-        <Text style={styles.tabBarInfoText}>
-          This is a tab bar. You can edit it in:
-        </Text>
-
-        <View
-          style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-          <MonoText style={styles.codeHighlightText}>
-            navigation/MainTabNavigator.js
-          </MonoText>
-        </View>
-      </View>
     </View>
   );
 }

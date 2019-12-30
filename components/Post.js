@@ -1,7 +1,14 @@
 import React from 'react'
 import { View, Image, Text, StyleSheet } from 'react-native'
+import {graphql, createFragmentContainer} from 'react-relay'
 
-export default class Post extends React.Component {
+/*
+type Props = {
+	post: Post_post 
+}
+ */
+
+class Post extends React.Component {
 
   state = {
     width: 0,
@@ -9,7 +16,7 @@ export default class Post extends React.Component {
   }
 
   componentDidMount() {
-    Image.getSize(this.props.imageUrl, (width, height) => {
+    Image.getSize(this.imageUrl, (width, height) => {
       const imageHeight =  250
       const scaleFactor = height / imageHeight
       const imageWidth = width / scaleFactor
@@ -19,17 +26,19 @@ export default class Post extends React.Component {
 
   render () {
     const {width, height} = this.state
+	const {description, imageUrl} = this.props.post
+	this.imageUrl = imageUrl
     return (
       <View>
         <View style={styles.imageContainer}>
           <Image
-            source={{ uri: this.props.imageUrl }}
-            style={{width, height}}
+            source={{ uri: imageUrl }}
+            style={{ width, height }}
             resizeMode='contain'
           />
         </View>
         <Text style={styles.title}>
-          {this.props.description}
+          {description}
         </Text>
       </View>
     )
@@ -49,3 +58,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 })
+
+
+export default createFragmentContainer(
+  Post,
+  // Each key specified in this object will correspond to a prop available to the component
+  {
+    post: graphql`
+      # As a convention, we name the fragment as '<ComponentFileName>_<propName>'
+      fragment Post_post on Post {
+        description
+        imageUrl
+      }
+    `
+  },
+)

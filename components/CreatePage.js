@@ -10,6 +10,8 @@ import {
   TouchableHighlight 
 } from 'react-native'
 
+import CreatePostMutation from '../mutations/CreatePostMutation'
+
 /*const createPostMutation = graphql`
   mutation ($description: String!, $imageUrl: String!){
     createPost(description: $description, imageUrl: $imageUrl) {
@@ -81,9 +83,14 @@ class CreatePage extends React.Component {
 
    _createPost = async () => {
      const {description, imageUrl} = this.state
-     await this.props.createPostMutation({
-       variables: {description, imageUrl}
-     })
+	 console.log("calling createPostcommit with")
+	 console.log(this.state)
+     CreatePostMutation.createPostCommit(
+			 this.props.environment, 
+			 description, 
+			 imageUrl
+			 )
+	 console.log("committed post")
      this.props.onComplete()
    }
 }

@@ -9,16 +9,11 @@ import {
   Text
 } from 'react-native'
 import CreatePage from './CreatePage'
-
+import {graphql, createFragmentContainer} from 'react-relay'
 
 /* no flux
-type Post{
-	id: ID
-	description: String!
-	imageUrl: String!
-}
 type Props = {
-	posts: Array<Post>
+	allPosts: ListPage_posts
 };
 */
 
@@ -39,7 +34,7 @@ class ListPage extends React.Component {
       return (<Text>Loading</Text>)
     } 
 	*/
-	console.log(this.props.posts[0].node)
+	const allPosts = this.props.posts.allPosts
     return (
       <View style={styles.container}>
 
@@ -49,6 +44,7 @@ class ListPage extends React.Component {
           visible={this.state.modalVisible}
         >
           <CreatePage
+		    environment={this.props.environment}
             onComplete={() => {
               //this.props.allPostsQuery.refetch()
               this.setState({modalVisible: false})
@@ -58,8 +54,12 @@ class ListPage extends React.Component {
         <FlatList
           enableEmptySections={true}
 		  // call this like <ListPage posts={queryresult}/>
-          data={this.props.posts}
-          renderItem={({item: post}) => (this._render_post(post)
+          data={allPosts.edges}
+		  // key here is edge.node.id
+          renderItem={({item: edge}) => (
+            <Post
+              post={edge.node}
+            />
           )}
         />
         <TouchableHighlight
@@ -70,16 +70,6 @@ class ListPage extends React.Component {
         </TouchableHighlight>
       </View>
     )
-  }
-
-  _render_post = (post) => {
-	  console.log(post)
-		  return(
-            <Post
-              description={post.node.description}
-              imageUrl={post.node.imageUrl}
-            />);
-
   }
 
   _createPost = () => {
@@ -108,4 +98,23 @@ const styles = StyleSheet.create({
   }
 })
 
-export default ListPage
+
+export default createFragmentContainer(
+  ListPage,
+  {
+    posts: graphql`
+      # As a convention, we name the fragment as '<ComponentFileName>_<PropName>'
+	  # maybe on User ?
+      fragment ListPage_posts on Viewer {
+		allPosts(last: 100, orderBy: description_DESC) {
+          edges {
+            node {
+              id,
+              ...Post_post
+            },
+          },
+        },
+      }
+    `,
+  },
+);
